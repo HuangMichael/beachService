@@ -49,24 +49,7 @@ public class SessionFilter implements javax.servlet.Filter {
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
-        String url = request.getRequestURI();
-        HttpSession httpSession = request.getSession(false);
-        //将公共资源加入表中
-        if (url.equals("/checkLogin") ||url.equals("/login") || url.equals("/") || url.endsWith("index.jsp")) {
-            filterChain.doFilter(request, response);
-        } else if (url.endsWith(".js") || url.endsWith(".css") || url.endsWith(".gif") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".ico")|| url.endsWith(".woff")) {
-            filterChain.doFilter(request, response);
-        } else {
-            if (httpSession != null) {
-                if (httpSession.getAttribute("currentUser") != null) {
-                    filterChain.doFilter(request, response);
-                } else {
-                    response.sendRedirect("/");
-                }
-            } else {
-                response.sendRedirect("/");
-            }
-        }
+        filterChain.doFilter(request, response);
     }
 
     @Override

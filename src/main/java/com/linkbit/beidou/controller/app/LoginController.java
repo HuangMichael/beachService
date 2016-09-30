@@ -42,6 +42,7 @@ public class LoginController {
     OrgRepository orgRepository;
     @Autowired
     CommonDataService commonDataService;
+
     @RequestMapping("/")
     public String logout(HttpServletRequest request, ModelMap modelMap) {
         HttpSession session = request.getSession();
@@ -56,11 +57,28 @@ public class LoginController {
         return "/login";
     }
 
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public ReturnObject authenticate(@RequestParam("userName") String userName, @RequestParam("password") String password) {
+    public ReturnObject authenticate(@RequestParam("userName") String userName, @RequestParam("password") String password, HttpSession httpSession) {
         String encryptPassword = MD5Util.md5(password);
         List<User> userList = userService.findByUserNameAndPasswordAndStatus(userName, encryptPassword, "1");
+        //用户登录之后将用户的信息缓存起来
+        if (!userList.isEmpty()) {
+            httpSession.setAttribute("user", userList.get(0));
+        }
         return commonDataService.getReturnType(!userList.isEmpty(), "用户登录成功", "用户登录失败!");
+    }
+
+
+    /**
+     * @param httpSession
+     * @return 获取本用户信息
+     */
+    @RequestMapping(value = "/getLoginUser", method = RequestMethod.GET)
+    @ResponseBody
+    public User getLoginUser(HttpSession httpSession) {
+        User user = (User) httpSession.getAttribute("user");
+        return user;
     }
 }
